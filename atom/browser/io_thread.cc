@@ -32,7 +32,22 @@ IOThread::IOThread(net_log::ChromeNetLog* net_log,
 }
 
 IOThread::~IOThread() {
+  DCHECK(request_context_getters_.empty());
   BrowserThread::SetIOThreadDelegate(nullptr);
+}
+
+void IOThread::RegisterURLRequestContextGetter(
+    atom::URLRequestContextGetter* getter) {
+  DCHECK(!base::FeatureList::IsEnabled(network::features::kNetworkService));
+  DCHECK_EQ(0u, request_context_getters_.count(getter));
+  request_context_getters_.insert(getter);
+}
+
+void IOThread::DeregisterURLRequestContextGetter(
+    atom::URLRequestContextGetter* getter) {
+  DCHECK(!base::FeatureList::IsEnabled(network::features::kNetworkService));
+  DCHECK_EQ(1u, request_context_getters_.count(getter));
+  request_context_getters_.erase(getter);
 }
 
 void IOThread::Init() {
@@ -62,10 +77,15 @@ void IOThread::Init() {
 }
 
 void IOThread::CleanUp() {
-  if (!base::FeatureList::IsEnabled(network::features::kNetworkService))
+  if (!base::FeatureList::IsEnabled(network::features::kNetworkService)) {
     system_request_context_->proxy_resolution_service()->OnShutdown();
 
-  system_network_context_.reset();
+    for (auto* getter : request_context_getters_) {
+      getter->NotifyContextShuttingDown();
+    }
+
+    system_network_context_.reset();
+  }
 
   if (net_log_)
     net_log_->ShutDownBeforeThreadPool();

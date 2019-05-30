@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "atom/browser/net/system_network_context_manager.h"
+#include "atom/browser/net/url_request_context_getter.h"
 #include "base/macros.h"
 #include "content/public/browser/browser_thread_delegate.h"
 #include "services/network/public/mojom/network_service.mojom.h"
@@ -26,6 +27,9 @@ class IOThread : public content::BrowserThreadDelegate {
       net_log::ChromeNetLog* net_log,
       SystemNetworkContextManager* system_network_context_manager);
   ~IOThread() override;
+
+  void RegisterURLRequestContextGetter(atom::URLRequestContextGetter* getter);
+  void DeregisterURLRequestContextGetter(atom::URLRequestContextGetter* getter);
 
  protected:
   // BrowserThreadDelegate Implementation, runs on the IO thread.
@@ -52,6 +56,8 @@ class IOThread : public content::BrowserThreadDelegate {
   // interface, but initial state needs to be set non-racily.
   network::mojom::HttpAuthStaticParamsPtr http_auth_static_params_;
   network::mojom::HttpAuthDynamicParamsPtr http_auth_dynamic_params_;
+
+  std::set<atom::URLRequestContextGetter*> request_context_getters_;
 
   DISALLOW_COPY_AND_ASSIGN(IOThread);
 };

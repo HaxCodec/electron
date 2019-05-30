@@ -9,17 +9,15 @@ then some methods call into the original. Let's just return an empty
 gfx::Rect and do the actual job in the subclass.
 
 diff --git a/chrome/browser/ui/autofill/popup_view_common.cc b/chrome/browser/ui/autofill/popup_view_common.cc
-index 004e9cb86bee7c10f6a68cdf6ceb60bf39627e1d..a78dc65c413ce72d31a364e1b36dbe067cf579d7 100644
+index 25e2cfce4999bdf6a94d61aae4558470d18f89ed..a877053086fa468aecfe6bd62af9bfe40a6a8441 100644
 --- a/chrome/browser/ui/autofill/popup_view_common.cc
 +++ b/chrome/browser/ui/autofill/popup_view_common.cc
-@@ -8,9 +8,11 @@
+@@ -8,7 +8,9 @@
  #include <utility>
  
  #include "build/build_config.h"
 +#if 0
  #include "chrome/browser/platform_util.h"
- #include "chrome/browser/ui/browser_finder.h"
- #include "chrome/browser/ui/browser_window.h"
 +#endif
  #include "ui/gfx/geometry/vector2d.h"
  
